@@ -7,11 +7,13 @@ require("dotenv").config();
 
 app.use(cors());
 app.use(express.json());
+
+//** CONNECT DATABASE
 connectDB();
 
-app.get("/", (req, res) => {
-	res.send("Hello");
-});
+// ***ROUTES
+const monitorRoutes = require("./routes/monitorRoutes");
+app.use("/monitors", monitorRoutes);
 
 app.listen(process.env.PORT, () => {
 	console.log(`Listening on port ${process.env.PORT}`);

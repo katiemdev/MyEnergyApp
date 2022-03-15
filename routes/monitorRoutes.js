@@ -5,11 +5,13 @@ const monitorController = require("../controllers/monitorController");
 
 router.get("/", monitorController.getMonitors);
 
+router.get("/:id", monitorController.getMonitor);
+
 // router.get("/getAverageUsage", monitorController.getAverageUsage);
 
-// router.get("/getAverageMonitorUsage", monitorController.getAverageMonitorUsage);
-
 router.post("/addMonitor", monitorController.addMonitor);
+
+router.delete("/deleteMonitor/:id", monitorController.deleteMonitor);
 
 router.post("/updateEnergyUsage", monitorController.updateEnergyUsage);
 

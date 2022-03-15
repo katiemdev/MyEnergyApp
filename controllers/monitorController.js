@@ -14,17 +14,14 @@ module.exports = {
 		}
 	},
 
-	/**@GET: AVERAGE USAGE OF SINGLE MONITOR */
-	// getAverageMonitorUsage: async (req, res) => {
-	// 	let result = await Monitor.findOneAndUpdate([
-	// 		{
-	// 			$set: {
-	// 				average: { $avg: "$monitorData.usage" },
-	// 			},
-	// 		},
-	// 	]);
-	// 	res.json(result);
-	// },
+	getMonitor: async (req, res) => {
+		try {
+			const monitor = await Monitor.findById(req.params.id);
+			res.send(monitor);
+		} catch (err) {
+			console.log(err);
+		}
+	},
 
 	/**@GET: CALCULATE AVERAGE ENERGY USAGE OVER ALL MONITORS */
 	// getAverageUsage: async (req, res) => {
@@ -41,9 +38,9 @@ module.exports = {
 		let num = Number((Math.random() * 100).toFixed(2));
 		try {
 			//monitor object to test POST endpoint
-			let monitor = {
-				name: "Katie",
-				description: "test" /*`Test ${Math.random() * 50}`, */,
+			const data = await Monitor.create({
+				name: req.body.name,
+				description: req.body.description /*`Test ${Math.random() * 50}`, */,
 				monitorData: [
 					{
 						date: date,
@@ -53,23 +50,34 @@ module.exports = {
 				],
 				average: num,
 				alarms: [],
-			};
-			const data = await Monitor.create(monitor);
+			});
 			res.send(data);
+			console.log(data);
 		} catch (err) {
 			console.log(err);
 		}
 	},
 
-	/**@UPDATE: PUSH USAGE OBJECT TO MONITORDATA ARRAY OF PARTICUALAR MONITOR
+	deleteMonitor: async (req, res) => {
+		try {
+			await Monitor.findByIdAndDelete(req.params.id);
+			res.json("Monitor deleted");
+		} catch (err) {
+			console.log(err);
+		}
+	},
+
+	/**@UPDATE: Push data from request (mock data received from DataApp project)
+	 * into MonitorData
 	 * NOTE: THIS IS THE ENDPOINT THAT WILL BE NEEDED FOR SOCKET.IO AND CHARTJS
 	 */
 	updateEnergyUsage: async (req, res) => {
+		//TEST OBJECT: remove this when adding real data
 		let energyObj = {
-			//test object
 			date: Date.now(),
 			time: Date.now(),
-			usage: Number((Math.random() * 100).toFixed(2)),
+			usage: req.body.usage1,
+			//Number((Math.random() * 100).toFixed(2)),
 		};
 		try {
 			//find monitor to update
@@ -85,13 +93,13 @@ module.exports = {
 			await Monitor.updateMany([
 				{
 					$set: {
-						average: { $avg: "$monitorData.usage" },
+						average: { $round: [{ $avg: "$monitorData.usage" }, 2] },
 					},
 				},
 			]);
 
 			// await monitor.save();
-			res.send("Monitor updated");
+			res.json("Monitor updated: " + monitor);
 		} catch (err) {
 			console.log(err);
 		}

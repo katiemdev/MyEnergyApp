@@ -4,9 +4,12 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const connectDB = require("./db-config");
 require("dotenv").config();
+// const myData = require("./data.js");
 
 app.use(cors());
 app.use(express.json());
+
+// myData.processLineByLine();
 
 //** CONNECT DATABASE
 connectDB();

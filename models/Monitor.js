@@ -13,13 +13,13 @@ const monitorSchema = new mongoose.Schema(
 		],
 		average: Number,
 		alarms: [],
-	},
-	{
-		timeseries: {
-			timeField: "time",
-			granularity: "hours",
-		},
 	}
+	// {
+	// 	timeseries: {
+	// 		timeField: "time",
+	// 		granularity: "hours",
+	// 	},
+	// }
 );
 
 module.exports = mongoose.model("Monitor", monitorSchema);

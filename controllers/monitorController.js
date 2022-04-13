@@ -1,4 +1,4 @@
-const { response } = require("express");
+// const { response } = require("express");
 const Monitor = require("../models/Monitor");
 
 module.exports = {
@@ -34,21 +34,15 @@ module.exports = {
 
 	/**@POST: ADD A MONITOR */
 	addMonitor: async (req, res) => {
-		let date = new Date();
-		let num = Number((Math.random() * 100).toFixed(2));
+		// let date = new Date();
+		// let num = Number((Math.random() * 100).toFixed(2));
 		try {
 			//monitor object to test POST endpoint
 			const data = await Monitor.create({
 				name: req.body.name,
 				description: req.body.description /*`Test ${Math.random() * 50}`, */,
-				monitorData: [
-					{
-						date: date,
-						time: date,
-						usage: num,
-					},
-				],
-				average: num,
+				monitorData: [],
+				average: 0,
 				alarms: [],
 			});
 			res.send(data);
@@ -74,9 +68,9 @@ module.exports = {
 	updateEnergyUsage: async (req, res) => {
 		//TEST OBJECT: remove this when adding real data
 		let energyObj = {
-			date: Date.now(),
-			time: Date.now(),
-			usage: req.body.usage1,
+			date: req.body.date,
+			time: req.body.time,
+			usage: req.body.usage.usage4,
 			//Number((Math.random() * 100).toFixed(2)),
 		};
 		try {
@@ -84,7 +78,7 @@ module.exports = {
 			const monitor = await Monitor.findOne({ description: "test" });
 
 			//add new data
-			await monitor.monitorData.push(energyObj);
+			await monitor.monitorData.unshift(energyObj);
 
 			//save updates
 			await monitor.save();
@@ -98,10 +92,12 @@ module.exports = {
 				},
 			]);
 
-			// await monitor.save();
-			res.json("Monitor updated: " + monitor);
+			res.json(`Monitor usage updated: ${JSON.stringify(energyObj)}`);
 		} catch (err) {
 			console.log(err);
 		}
+
+		//emit event to client when data has been updated
+		require("../server").io.emit("monitorUpdate", energyObj);
 	},
 };

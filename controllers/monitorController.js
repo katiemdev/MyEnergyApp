@@ -1,4 +1,3 @@
-// const { response } = require("express");
 const Monitor = require("../models/Monitor");
 
 module.exports = {
@@ -14,6 +13,7 @@ module.exports = {
 		}
 	},
 
+	/** @GET: GET SINGLE MONITOR BY ID */
 	getMonitor: async (req, res) => {
 		try {
 			const monitor = await Monitor.findById(req.params.id);
@@ -52,6 +52,7 @@ module.exports = {
 		}
 	},
 
+	/**@DELETE: DELETE A MONITOR */
 	deleteMonitor: async (req, res) => {
 		try {
 			await Monitor.findByIdAndDelete(req.params.id);
@@ -61,10 +62,7 @@ module.exports = {
 		}
 	},
 
-	/**@UPDATE: Push data from request (mock data received from DataApp project)
-	 * into MonitorData
-	 * NOTE: THIS IS THE ENDPOINT THAT WILL BE NEEDED FOR SOCKET.IO AND CHARTJS
-	 */
+	/**@UPDATE: ADD ENERGY USAGE DATA TO MONITOR */
 	updateEnergyUsage: async (req, res) => {
 		//TEST OBJECT: remove this when adding real data
 		let energyObj = {

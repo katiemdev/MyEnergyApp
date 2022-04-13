@@ -7,11 +7,11 @@ require("dotenv").config();
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 
-/* SOCKET.IO */
+//* SOCKET.IO
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
 	cors: {
-		origin: "http://localhost:4200",
+		origin: process.env.CLIENT_URL,
 	},
 });
 

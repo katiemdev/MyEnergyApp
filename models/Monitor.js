@@ -7,12 +7,15 @@ const monitorSchema = new mongoose.Schema(
 		monitorData: [
 			{
 				date: { type: Date, default: Date.now },
-				time: Date,
 				usage: Number,
 			},
 		],
 		average: Number,
 		alarms: [],
+		user: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
 	}
 	// {
 	// 	timeseries: {

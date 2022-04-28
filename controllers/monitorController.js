@@ -1,10 +1,11 @@
 const Monitor = require("../models/Monitor");
+const Alarm = require("../models/Alarm");
 
 module.exports = {
 	/**@GET: GET ALL MONITORS */
 	getMonitors: async (req, res) => {
 		try {
-			Monitor.find((err, monitors) => {
+			return Monitor.find((err, monitors) => {
 				if (err) next(err);
 				res.json(monitors);
 			});
@@ -18,6 +19,17 @@ module.exports = {
 		try {
 			const monitor = await Monitor.findById(req.params.id);
 			res.send(monitor);
+			return monitor;
+		} catch (err) {
+			console.log(err);
+		}
+	},
+
+	/** @GET: MONITORS BY USER */
+	getUserMonitors: async (req, res, err) => {
+		try {
+			const monitors = await Monitor.find({ user: req.params.id });
+			res.json(monitors);
 		} catch (err) {
 			console.log(err);
 		}
@@ -34,19 +46,17 @@ module.exports = {
 
 	/**@POST: ADD A MONITOR */
 	addMonitor: async (req, res) => {
-		// let date = new Date();
-		// let num = Number((Math.random() * 100).toFixed(2));
 		try {
-			//monitor object to test POST endpoint
 			const data = await Monitor.create({
 				name: req.body.name,
-				description: req.body.description /*`Test ${Math.random() * 50}`, */,
+				description: req.body.description,
 				monitorData: [],
 				average: 0,
-				alarms: [],
+				user: req.body.user,
 			});
 			res.send(data);
 			console.log(data);
+			return data;
 		} catch (err) {
 			console.log(err);
 		}
@@ -55,8 +65,25 @@ module.exports = {
 	/**@DELETE: DELETE A MONITOR */
 	deleteMonitor: async (req, res) => {
 		try {
-			await Monitor.findByIdAndDelete(req.params.id);
+			const monitor = await Monitor.findByIdAndDelete(req.params.id);
 			res.json("Monitor deleted");
+			return monitor;
+		} catch (err) {
+			console.log(err);
+		}
+	},
+
+	updateMonitor: async (req, res) => {
+		try {
+			const monitor = await Monitor.findOneAndUpdate(
+				req.body._id,
+				{
+					name: req.body.name,
+					description: req.body.description,
+				},
+				{ new: true }
+			);
+			res.send(monitor);
 		} catch (err) {
 			console.log(err);
 		}
@@ -64,38 +91,103 @@ module.exports = {
 
 	/**@UPDATE: ADD ENERGY USAGE DATA TO MONITOR */
 	updateEnergyUsage: async (req, res) => {
-		//TEST OBJECT: remove this when adding real data
-		let energyObj = {
-			date: req.body.date,
-			time: req.body.time,
-			usage: req.body.usage.usage4,
-			//Number((Math.random() * 100).toFixed(2)),
-		};
+		const monitors = await Monitor.find({});
 		try {
-			//find monitor to update
-			const monitor = await Monitor.findOne({ description: "test" });
+			for (let monitor of monitors) {
+				let energyObj = {
+					date: req.body.date,
+					usage: Object.values(req.body.usage)[Math.floor(Math.random() * 3)],
+					//Number((Math.random() * 100).toFixed(2)),
+				};
+				//add new data
+				await monitor.monitorData.push(energyObj);
 
-			//add new data
-			await monitor.monitorData.unshift(energyObj);
+				//save updates
+				await monitor.save();
 
-			//save updates
-			await monitor.save();
-
-			//set new average
-			await Monitor.updateMany([
-				{
-					$set: {
-						average: { $round: [{ $avg: "$monitorData.usage" }, 2] },
+				//set new average
+				await Monitor.updateMany([
+					{
+						$set: {
+							average: { $round: [{ $avg: "$monitorData.usage" }, 2] },
+						},
 					},
-				},
-			]);
+				]);
 
-			res.json(`Monitor usage updated: ${JSON.stringify(energyObj)}`);
+				//Get alarms associated with monitor
+				const alarms = await Alarm.find({ monitor: monitor._id });
+
+				//check if recent usage has gone over threshold
+				for (let a of alarms) {
+					if (energyObj.usage > a.threshold) {
+						energyObj.threshold = true;
+					} else {
+						energyObj.threshold = false;
+					}
+				}
+				energyObj.monitor = monitor._id;
+
+				//emit event to client when data has been updated
+				require("../server").io.emit("monitorUpdate", energyObj);
+			}
+
+			res.json(`Monitor usage updated`);
 		} catch (err) {
 			console.log(err);
 		}
+	},
+	//@GET alarms associated with a monitor
+	getAlarms: async (req, res, err) => {
+		try {
+			const alarms = await Alarm.find({ monitor: req.params.id });
+			res.json(alarms);
+		} catch (err) {
+			console.log(err);
+		}
+	},
 
-		//emit event to client when data has been updated
-		require("../server").io.emit("monitorUpdate", energyObj);
+	/**@POST: ADD A MONITOR */
+	addAlarm: async (req, res) => {
+		try {
+			const data = await Alarm.create({
+				name: req.body.name,
+				description: req.body.description,
+				threshold: req.body.threshold,
+				monitor: req.body.monitor,
+			});
+			res.send(data);
+			console.log(data);
+			return data;
+		} catch (err) {
+			console.log(err);
+		}
+	},
+
+	updateAlarm: async (req, res) => {
+		try {
+			const alarm = await Alarm.findOneAndUpdate(
+				req.body._id,
+				{
+					name: req.body.name,
+					description: req.body.description,
+					threshold: req.body.threshold,
+				},
+				{ new: true }
+			);
+			res.send(alarm);
+		} catch (err) {
+			console.log(err);
+		}
+	},
+
+	deleteAlarm: async (req, res) => {
+		try {
+			console.log(req.body.id);
+			const alarm = await Alarm.findByIdAndDelete(req.params.id);
+			res.json("Alarm deleted");
+			return alarm;
+		} catch (err) {
+			console.log(err);
+		}
 	},
 };

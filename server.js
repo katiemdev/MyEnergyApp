@@ -8,7 +8,20 @@ require("dotenv").config();
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 
-app.use(cors());
+const allowedOrigins = process.env.CLIENT_URL;
+app.use(
+	cors({
+		credentials: true,
+		origin: (origin, callback) => {
+			if (allowedOrigins.includes(origin)) {
+				callback(null, true);
+			} else {
+				callback(new Error(`Origin: ${origin} is now allowed`));
+			}
+		},
+	})
+);
+
 app.use(express.json());
 
 //* SOCKET.IO

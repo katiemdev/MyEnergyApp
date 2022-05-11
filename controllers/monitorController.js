@@ -98,7 +98,9 @@ module.exports = {
 			for (let monitor of monitors) {
 				let energyObj = {
 					date: req.body.date,
-					usage: Object.values(req.body.usage)[Math.floor(Math.random() * 3)],
+					usage: Object.values(req.body.usage)[
+						Math.floor(Math.random() * Object.keys(energyObj).length)
+					],
 					//Number((Math.random() * 100).toFixed(2)),
 				};
 				//add new data

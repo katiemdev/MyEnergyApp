@@ -52,7 +52,7 @@ app.use("/monitors", monitorRoutes);
 const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
 
-// app.use(express.static("energy-app"));
+app.use(express.static("energy-app"));
 
 httpServer.listen(process.env.PORT, () => {
 	console.log(`Listening on port ${process.env.PORT}`);

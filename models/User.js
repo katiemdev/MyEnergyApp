@@ -6,10 +6,6 @@ const userSchema = new mongoose.Schema(
 		name: String,
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
-		// monitors: {
-		// 	type: Array[mongoose.Schema.Types.ObjectId],
-		// 	ref: "User",
-		// },
 	},
 	{
 		timestamps: true,
@@ -17,23 +13,23 @@ const userSchema = new mongoose.Schema(
 );
 
 // Password hash middleware.
-userSchema.pre("save", function save(next) {
-	const user = this;
-	if (!user.isModified("password")) {
-		return next();
-	}
-	bcrypt.genSalt(10, (err, salt) => {
-		if (err) {
-			return next(err);
-		}
-		bcrypt.hash(user.password, salt, (err, hash) => {
-			if (err) {
-				return next(err);
-			}
-			user.password = hash;
-			next();
-		});
-	});
-});
+// userSchema.pre("save", function save(next) {
+// 	const user = this;
+// 	if (!user.isModified("password")) {
+// 		return next();
+// 	}
+// 	// bcrypt.genSalt(10, (err, salt) => {
+// 	// 	if (err) {
+// 	// 		return next(err);
+// 	// 	}
+// 	bcrypt.hashSync(user.password, 10, (err, hash) => {
+// 		if (err) {
+// 			return next(err);
+// 		}
+// 		user.password = hash;
+// 		next();
+// 	});
+// 	// });
+// });
 
 module.exports = mongoose.model("User", userSchema);

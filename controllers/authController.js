@@ -14,31 +14,34 @@ module.exports = {
 					return res.status(401).json({
 						message: "Authentication failed: No user found",
 					});
+				} else {
+					getUser = user;
+					// const hash = bcrypt.hashSync(req.body.password, 10);
+					return bcrypt.compareSync(req.body.password, getUser.password);
 				}
-				getUser = user;
-				return bcrypt.compare(req.body.password, getUser.password);
 			})
-			.then((response) => {
-				if (!response) {
+			.then((result) => {
+				if (!result) {
 					return res.status(401).json({
 						message: "Authentication failed: Incorrect password",
 					});
+				} else {
+					let jwtToken = jwt.sign(
+						{
+							email: getUser.email,
+							userId: getUser._id,
+						},
+						process.env.JWT_SECRET,
+						{
+							expiresIn: "1h",
+						}
+					);
+					return res.status(200).json({
+						token: jwtToken,
+						expiresIn: 3600,
+						user: getUser,
+					});
 				}
-				let jwtToken = jwt.sign(
-					{
-						email: getUser.email,
-						userId: getUser._id,
-					},
-					process.env.JWT_SECRET,
-					{
-						expiresIn: "1h",
-					}
-				);
-				return res.status(200).json({
-					token: jwtToken,
-					expiresIn: 3600,
-					user: getUser,
-				});
 			})
 			.catch((err) => {
 				return res.status(401).json({

@@ -75,14 +75,16 @@ module.exports = {
 
 	updateMonitor: async (req, res) => {
 		try {
-			const monitor = await Monitor.findOneAndUpdate(
-				req.body._id,
+			console.log(req.body);
+			const monitor = await Monitor.findByIdAndUpdate(
+				req.body.id,
 				{
 					name: req.body.name,
 					description: req.body.description,
 				},
 				{ new: true }
 			);
+			console.log(monitor);
 			res.send(monitor);
 		} catch (err) {
 			console.log(err);
@@ -166,7 +168,7 @@ module.exports = {
 	updateAlarm: async (req, res) => {
 		try {
 			const alarm = await Alarm.findOneAndUpdate(
-				req.body._id,
+				req.body.id,
 				{
 					name: req.body.name,
 					description: req.body.description,
@@ -182,7 +184,6 @@ module.exports = {
 
 	deleteAlarm: async (req, res) => {
 		try {
-			console.log(req.body.id);
 			const alarm = await Alarm.findByIdAndDelete(req.params.id);
 			res.json("Alarm deleted");
 			return alarm;

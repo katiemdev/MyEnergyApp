@@ -17,7 +17,7 @@ app.use(express.json());
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
 	cors: {
-		origin: process.env.CLIENT_URL,
+		origin: [process.env.CLIENT_URL, "https://my-energy-app.herokuapp.com"],
 		credentials: true,
 	},
 });
@@ -52,9 +52,9 @@ app.use("/monitors", monitorRoutes);
 const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
 
-app.use(express.static("energy-app"));
+// app.use(express.static("energy-app"));
 
-httpServer.listen(process.env.PORT || 5000, () => {
+httpServer.listen(process.env.PORT, () => {
 	console.log(`Listening on port ${process.env.PORT}`);
 });
 

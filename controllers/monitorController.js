@@ -8,7 +8,7 @@ module.exports = {
 			return Monitor.find((err, monitors) => {
 				if (err) next(err);
 				res.json(monitors);
-			});
+			}).clone();
 		} catch (err) {
 			console.log(err);
 		}
@@ -93,13 +93,13 @@ module.exports = {
 
 	/**@UPDATE: ADD ENERGY USAGE DATA TO MONITOR */
 	updateEnergyUsage: async (req, res) => {
-		const monitors = await Monitor.find({});
 		try {
+			const monitors = await Monitor.find({});
 			for (let monitor of monitors) {
 				let energyObj = {
 					date: req.body.date,
 					usage: Object.values(req.body.usage)[
-						Math.floor(Math.random() * Object.keys(energyObj).length)
+						Math.floor(Math.random() * Object.keys(req.body.usage).length)
 					],
 					//Number((Math.random() * 100).toFixed(2)),
 				};

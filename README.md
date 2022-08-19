@@ -9,6 +9,6 @@ The purpose of this application is to simulate an Internet of Things (IoT) appli
 The project was created using the MEAN stack (MongoDB, Express, Angular and Nodejs), and follows the MVC architecture paradigm. The project also makes use of other technologies, such as socket.io for displaying data in real-time, and chartjs, for visualising said data, and JSON Web Tokens for user authentication.
 
 ### Client-side code
-The client side code for this application is in a seperate repo, and can be found here: [https://github.com/katiemdev/energy-app-client]
+The client side code for this application is in a seperate repo, and can be found here: [https://github.com/katiemdev/energy-app-client-side]
 
 The full design and test specification for this project is available on request.
